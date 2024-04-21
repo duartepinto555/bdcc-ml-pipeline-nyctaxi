@@ -47,7 +47,8 @@ def main():
     date_range = [dt.datetime(year, month, 1) for year in years for month in range(1, 13)]
 
     # To which directory do we wish to save the data in 
-    output_folder = '/'.join(__file__.split('/')[:-2]) + '/datasets'
+    split = '/' if '/' in __file__ else '\\'
+    output_folder = '/'.join(__file__.split(split)[:-2]) + '/datasets'
     date_output_name = download_taxi_files(date_range, output_folder)
     merge_files([date_output[1] for date_output in date_output_name], f'{output_folder}/yellow_taxi_tripdata_{years[0]}_{years[-1]}.parquet')
 

@@ -160,4 +160,7 @@ cython_debug/
 #.idea/
 
 
+# Yellow taxi dataset (too big, and we provide a way to download it initially)
 datasets/yellow_taxi*
+# .virtual environment used for taxi, not gonna upload it to git
+.venv

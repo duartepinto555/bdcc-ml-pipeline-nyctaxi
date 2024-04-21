@@ -6,3 +6,4 @@ PyArrow
 NumPy
 Koalas
 pyspark
+ipykernel

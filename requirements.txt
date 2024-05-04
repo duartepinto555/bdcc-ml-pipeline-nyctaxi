@@ -1,6 +1,6 @@
 tqdm
 requests
-Dask[complete]==2021.03.0
+Dask[complete]
 pandas
 PyArrow
 NumPy

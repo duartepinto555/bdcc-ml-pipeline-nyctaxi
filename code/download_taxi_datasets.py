@@ -8,6 +8,11 @@ import pandas as pd
 
 from multiprocessing import Pool
 
+import databricks.koalas as ks
+# Setting variable to java path so koalas knows where to look for it 
+os.environ['JAVA_HOME'] = r'C:\Program Files\Java\jdk-11\bin'
+ks.set_option('compute.default_index_type', 'distributed-sequence') 
+
 
 def _download_taxi_files(date_fname):
     # Get date and fname from input
@@ -33,17 +38,12 @@ def download_taxi_files(date_range, output_folder):
     return date_output_name
 
 
-def merge_files(file_list, output_file_name):
-    # df = []
-    # for file in tqdm.tqdm(file_list, desc='Reading files to merge them later on'):
-    #     df.append(pd.read_parquet(file))
-    # df = pd.concat(df)
-    # df.to_parquet(output_file_name)
-    with open(output_file_name, 'a') as f: 
-        for file in tqdm.tqdm(file_list, desc='Reading files to merge them later on'):
-            df = pd.read_parquet(file)
-            df.to_csv(f, header=False, index=False)
-
+def treat_file(fname, outname):
+    ks_df= ks.read_parquet(fname, index_col='index')
+    # Rename columns to lower case
+    ks_df.columns = ks_df.columns.str.lower()
+    # write files to new parquet files
+    ks_df.to_parquet(outname, index_col='index')
 
 
 def main():
@@ -54,9 +54,12 @@ def main():
     # To which directory do we wish to save the data in 
     split = '/' if '/' in __file__ else '\\'
     output_folder = '/'.join(__file__.split(split)[:-2]) + '/datasets'
-    date_output_name = download_taxi_files(date_range, output_folder)
-    merge_files([date_output[1] for date_output in date_output_name], f'{output_folder}/yellow_taxi_tripdata_{years[0]}_{years[-1]}.csv')
 
+    # Download taxi files
+    download_taxi_files(date_range, output_folder)
+
+    # Renamimg some coolumns
+    treat_file(f'{output_folder}/yellow_taxi_tripdata_', f'{output_folder}/ks_yellow_taxi_tripdata_')
 
 
 if __name__ == '__main__':

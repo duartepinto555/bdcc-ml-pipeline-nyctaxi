@@ -34,11 +34,16 @@ def download_taxi_files(date_range, output_folder):
 
 
 def merge_files(file_list, output_file_name):
-    df = []
-    for file in tqdm.tqdm(file_list, desc='Reading files to merge them later on'):
-        df.append(pd.read_parquet(file))
-    df = pd.concat(df)
-    df.to_parquet(output_file_name)
+    # df = []
+    # for file in tqdm.tqdm(file_list, desc='Reading files to merge them later on'):
+    #     df.append(pd.read_parquet(file))
+    # df = pd.concat(df)
+    # df.to_parquet(output_file_name)
+    with open(output_file_name, 'a') as f: 
+        for file in tqdm.tqdm(file_list, desc='Reading files to merge them later on'):
+            df = pd.read_parquet(file)
+            df.to_csv(f, header=False, index=False)
+
 
 
 def main():
@@ -50,7 +55,7 @@ def main():
     split = '/' if '/' in __file__ else '\\'
     output_folder = '/'.join(__file__.split(split)[:-2]) + '/datasets'
     date_output_name = download_taxi_files(date_range, output_folder)
-    merge_files([date_output[1] for date_output in date_output_name], f'{output_folder}/yellow_taxi_tripdata_{years[0]}_{years[-1]}.parquet')
+    merge_files([date_output[1] for date_output in date_output_name], f'{output_folder}/yellow_taxi_tripdata_{years[0]}_{years[-1]}.csv')
 
 
 

@@ -1,17 +1,10 @@
 import os
+import tqdm
+import requests
+import pandas as pd
 import datetime as dt
 
-import requests
-
-import tqdm
-import pandas as pd
-
 from multiprocessing import Pool
-
-import databricks.koalas as ks
-# Setting variable to java path so koalas knows where to look for it 
-os.environ['JAVA_HOME'] = r'C:\Program Files\Java\jdk-11\bin'
-ks.set_option('compute.default_index_type', 'distributed-sequence') 
 
 
 def _download_taxi_files(date_fname):
@@ -24,8 +17,6 @@ def _download_taxi_files(date_fname):
     # Download file and write it's content
     response = requests.get(yellow_taxis_url.format(year=date.year, month=date.month))
     with open(fname, 'wb') as f: f.write(response.content)
-
-
 def download_taxi_files(date_range, output_folder):
     # Create output_folder if it doesn't exist
     if not os.path.isdir(output_folder): os.mkdir(output_folder)
@@ -39,11 +30,11 @@ def download_taxi_files(date_range, output_folder):
 
 
 def treat_file(fname, outname):
-    ks_df= ks.read_parquet(fname, index_col='index')
+    ps_df = pd.read_parquet(fname)
     # Rename columns to lower case
-    ks_df.columns = ks_df.columns.str.lower()
+    ps_df.columns = ps_df.columns.str.lower()
     # write files to new parquet files
-    ks_df.to_parquet(outname, index_col='index')
+    ps_df.to_parquet(outname)
 
 
 def main():
@@ -58,8 +49,9 @@ def main():
     # Download taxi files
     download_taxi_files(date_range, output_folder)
 
-    # Renamimg some coolumns
-    treat_file(f'{output_folder}/yellow_taxi_tripdata_', f'{output_folder}/ks_yellow_taxi_tripdata_')
+    # Renaming columns in files
+    for file in tqdm.tqdm(os.listdir(output_folder)):
+        if 'ks_yellow_taxi_tripdata' not in file: treat_file(f'{output_folder}/{file}', f'{output_folder}/ks_{file}')
 
 
 if __name__ == '__main__':

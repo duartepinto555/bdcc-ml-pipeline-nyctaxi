@@ -164,3 +164,23 @@ cython_debug/
 datasets/yellow_taxi*
 # .virtual environment used for taxi, not gonna upload it to git
 .venv
+code/notebooks/dask-worker-space/global.lock
+code/notebooks/dask-worker-space/purge.lock
+code/notebooks/dask-worker-space/worker-5vn3kf_l.dirlock
+code/notebooks/dask-worker-space/worker-744wipy0.dirlock
+code/notebooks/dask-worker-space/worker-ly2lwhz0.dirlock
+code/notebooks/dask-worker-space/worker-m3d0xt3y.dirlock
+code/notebooks/dask-worker-space/worker-qn242_xj.dirlock
+code/notebooks/dask-worker-space/worker-rny67kem.dirlock
+datasets/ks_yellow_taxi_tripdata_2009-01.parquet
+datasets/ks_yellow_taxi_tripdata_2009-02.parquet
+datasets/ks_yellow_taxi_tripdata_2009-03.parquet
+datasets/ks_yellow_taxi_tripdata_2009-04.parquet
+datasets/ks_yellow_taxi_tripdata_2009-05.parquet
+datasets/ks_yellow_taxi_tripdata_2009-06.parquet
+datasets/ks_yellow_taxi_tripdata_2009-07.parquet
+datasets/ks_yellow_taxi_tripdata_2009-08.parquet
+datasets/ks_yellow_taxi_tripdata_2009-09.parquet
+datasets/ks_yellow_taxi_tripdata_2009-10.parquet
+datasets/ks_yellow_taxi_tripdata_2009-11.parquet
+datasets/ks_yellow_taxi_tripdata_2009-12.parquet

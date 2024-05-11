@@ -4,13 +4,16 @@ import numpy as np
 import pandas as pd
 import modin.pandas as mpd
 import dask.dataframe as dd
-
+import cudf # RapidsAI
+import dask_cudf
+from joblib import Parallel, delayed
 
 
 class dataframe_benchmark:
 
-    def __init__(self, file_dir, engine='pandas'):
-        self.engine = engine # engine can be 'pandas', 'modin' or 'dask'
+    def __init__(self, file_dir, engine='pandas', df_type='pandas'):
+        self.engine = engine # engine can be 'pandas', 'modin', 'dask', 'cudf', or 'joblib'
+        self.df_type = df_type # df_type can be 'pandas', 'dask', 'cudf', or 'joblib'
         self.exec_times = {}
         if engine == 'modin':
             os.environ["MODIN_ENGINE"] = "dask"  # Modin will use Dask
@@ -18,10 +21,18 @@ class dataframe_benchmark:
             self.df = self.pd.read_parquet(file_dir, index='index')
         elif engine == 'dask':
             self.df = dd.read_parquet(file_dir, index='index')
+        elif engine == 'cudf': # we can use cudf or dd 
+            if df_type == 'dask':
+                self.df = dask_cudf.read_parquet(file_dir, index='index')
+            else:
+                self.df = cudf.read_parquet(file_dir, index='index')
+        elif engine == 'joblib':
+            self.pd = pd
+            self.df = self.pd.read_parquet(file_dir, index='index')
         else:
             self.pd = pd
             self.df = self.pd.read_parquet(file_dir, index='index')
-    
+
     def time_decorator(self, func):
         def wrapper(*args, **kwargs):
             start_time = time.time()
@@ -33,63 +44,78 @@ class dataframe_benchmark:
     
     @time_decorator
     def count(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return len(self.df.compute())
+        elif self.engine == 'joblib':
+            return Parallel(n_jobs=-1)(delayed(len)(self.df)) # We still have to define the chunks size.
         else:
             return len(self.df)
 
     @time_decorator
     def count_index_length(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return len(self.df.index.compute())
+        elif self.engine == 'joblib':
+            return Parallel(n_jobs=-1)(delayed(len)(self.df.index)) # We still have to define the chunks size.
         else:
             return len(self.df.index)
 
     @time_decorator
     def mean(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return self.df.fare_amt.mean().compute()
+        elif self.engine == 'joblib':
+            return Parallel(n_jobs=-1)(delayed(np.mean)(self.df.fare_amt)) # We still have to define the chunks size.
         else:
             return self.df.fare_amt.mean()
 
-    @time_decorator
     def standard_deviation(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return self.df.fare_amt.std().compute()
+        elif self.engine == 'joblib': 
+            return Parallel(n_jobs=-1)(delayed(np.std)(self.df.fare_amt)) # We still have to define the chunks size.
         else:
             return self.df.fare_amt.std()
 
     @time_decorator
     def mean_of_sum(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return (self.df.fare_amt + self.df.tip_amt).mean().compute()
+        elif self.engine == 'joblib':
+            return Parallel(n_jobs=-1)(delayed(np.mean)(self.df.fare_amt + self.df.tip_amt)) # We still have to define the chunks size.
         else:
             return (self.df.fare_amt + self.df.tip_amt).mean()
 
     @time_decorator
     def sum_columns(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return (self.df.fare_amt + self.df.tip_amt).compute()
+        elif self.engine == 'joblib':
+            return Parallel(n_jobs=-1)(delayed(np.sum)(self.df.fare_amt + self.df.tip_amt)) # We still have to define the chunks size.
         else:
             return (self.df.fare_amt + self.df.tip_amt)
 
     @time_decorator
     def mean_of_product(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return (self.df.fare_amt * self.df.tip_amt).mean().compute()
+        elif self.engine == 'joblib':
+            return Parallel(n_jobs=-1)(delayed(np.mean)(self.df.fare_amt * self.df.tip_amt)) # We still have to define the chunks size.
         else:
             return (self.df.fare_amt * self.df.tip_amt).mean()
 
     @time_decorator
     def product_columns(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return (self.df.fare_amt * self.df.tip_amt).compute()
+        elif self.engine == 'joblib':
+            return Parallel(n_jobs=-1)(delayed(np.prod)(self.df.fare_amt * self.df.tip_amt)) # We still have to define the chunks size.
         else:
             return (self.df.fare_amt * self.df.tip_amt)
 
     @time_decorator
     def value_counts(self):
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return self.df.fare_amt.value_counts().compute()
         else:
             return self.df.fare_amt.value_counts()
@@ -103,8 +129,10 @@ class dataframe_benchmark:
         temp = (np.sin((theta_2-theta_1)/2*np.pi/180)**2
                + np.cos(theta_1*np.pi/180)*np.cos(theta_2*np.pi/180) * np.sin((phi_2-phi_1)/2*np.pi/180)**2)
         ret = 2 * np.arctan2(np.sqrt(temp), np.sqrt(1-temp))
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return ret.mean().compute()
+        elif self.engine == 'joblib':
+            return Parallel(n_jobs=-1)(delayed(np.mean)(ret)) # We still have to define the chunks size.
         else:
             return ret.mean()
 
@@ -117,7 +145,7 @@ class dataframe_benchmark:
         temp = (np.sin((theta_2-theta_1)/2*np.pi/180)**2
                + np.cos(theta_1*np.pi/180)*np.cos(theta_2*np.pi/180) * np.sin((phi_2-phi_1)/2*np.pi/180)**2)
         ret = 2 * np.arctan2(np.sqrt(temp), np.sqrt(1-temp))
-        if self.engine == 'dask':
+        if self.engine in ['dask', 'cudf']:
             return ret.compute()
         else:
             return ret

@@ -38,63 +38,63 @@ class dataframe_benchmark:
         else:
             return len(self.df)
 
-    time_decorator
+    @time_decorator
     def count_index_length(self):
         if self.engine == 'dask':
             return len(self.df.index.compute())
         else:
             return len(self.df.index)
 
-    time_decorator
+    @time_decorator
     def mean(self):
         if self.engine == 'dask':
             return self.df.fare_amt.mean().compute()
         else:
             return self.df.fare_amt.mean()
 
-    time_decorator
+    @time_decorator
     def standard_deviation(self):
         if self.engine == 'dask':
             return self.df.fare_amt.std().compute()
         else:
             return self.df.fare_amt.std()
 
-    time_decorator
+    @time_decorator
     def mean_of_sum(self):
         if self.engine == 'dask':
             return (self.df.fare_amt + self.df.tip_amt).mean().compute()
         else:
             return (self.df.fare_amt + self.df.tip_amt).mean()
 
-    time_decorator
+    @time_decorator
     def sum_columns(self):
         if self.engine == 'dask':
             return (self.df.fare_amt + self.df.tip_amt).compute()
         else:
             return (self.df.fare_amt + self.df.tip_amt)
 
-    time_decorator
+    @time_decorator
     def mean_of_product(self):
         if self.engine == 'dask':
             return (self.df.fare_amt * self.df.tip_amt).mean().compute()
         else:
             return (self.df.fare_amt * self.df.tip_amt).mean()
 
-    time_decorator
+    @time_decorator
     def product_columns(self):
         if self.engine == 'dask':
             return (self.df.fare_amt * self.df.tip_amt).compute()
         else:
             return (self.df.fare_amt * self.df.tip_amt)
 
-    time_decorator
+    @time_decorator
     def value_counts(self):
         if self.engine == 'dask':
             return self.df.fare_amt.value_counts().compute()
         else:
             return self.df.fare_amt.value_counts()
 
-    time_decorator
+    @time_decorator
     def mean_of_complicated_arithmetic_operation(self):
         theta_1 = self.df.start_lon
         phi_1 = self.df.start_lat
@@ -108,7 +108,7 @@ class dataframe_benchmark:
         else:
             return ret.mean()
 
-    time_decorator
+    @time_decorator
     def complicated_arithmetic_operation(self):
         theta_1 = self.df.start_lon
         phi_1 = self.df.start_lat
@@ -122,7 +122,7 @@ class dataframe_benchmark:
         else:
             return ret
 
-    time_decorator
+    @time_decorator
     def groupby_statistics(self):
         result = self.df.groupby(by='passenger_count').agg(
           {

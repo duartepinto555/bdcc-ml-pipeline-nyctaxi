@@ -114,8 +114,6 @@ def join_data(df, other):
 def filter_data(df, expr_filter):
     return df[expr_filter]
   
-
-
 def main():
     client = Client()
     

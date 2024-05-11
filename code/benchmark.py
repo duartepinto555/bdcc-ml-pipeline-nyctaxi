@@ -1,7 +1,5 @@
 import datetime as dt
-
 import download_taxi_datasets
-
 
 
 def main():    
@@ -12,7 +10,6 @@ def main():
     # To which directory do we wish to save the data in 
     output_folder = '/'.join(__file__.split('/')[:-2]) + '/datasets'
     download_taxi_datasets.download_taxi_files(date_range, output_folder)
-
 
 
 if __name__ == '__main__':

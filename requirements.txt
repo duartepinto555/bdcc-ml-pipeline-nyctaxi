@@ -7,3 +7,7 @@ NumPy
 Koalas
 pyspark
 ipykernel
+modin
+joblib
+cudf-cu12       # May require "--extra-index-url"=https://pypi.nvidia.com
+dask-cudf-cu12  # May require "--extra-index-url"=https://pypi.nvidia.com

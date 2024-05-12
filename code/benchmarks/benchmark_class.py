@@ -5,11 +5,12 @@ import numpy as np
 import pandas as pd
 import modin.pandas as mpd
 import dask.dataframe as dd
-import cudf # RapidsAI
-import dask_cudf
+# import cudf # RapidsAI
+# import dask_cudf
 
 from typing import Literal
 from joblib import Parallel, delayed
+from dask.distributed import Client, LocalCluster
 
 
 class Benchmark:
@@ -18,20 +19,28 @@ class Benchmark:
             self,
             file_dir,
             engine: Literal['pandas', 'modin', 'dask', 'cudf', 'joblib']='pandas',
-            df_type: Literal['pandas', 'dask']='pandas'
+            df_type: Literal['pandas', 'dask']='pandas',
+            cluster=None,
         ):
         self.engine = engine # engine can be 'pandas', 'modin', 'dask', 'cudf', or 'joblib'
         self.df_type = df_type # df_type can be 'pandas', 'dask'
         self.file_dir = file_dir
         self.exec_times = {}
+        self.client = None
         # Default "engine"
         self.pd = pd
         if engine == 'modin':
             os.environ["MODIN_ENGINE"] = "dask"  # Modin will use Dask
+            self.cluster = cluster if cluster is not None else LocalCluster(n_workers=1, memory_limit='12GB')
+            self.client = Client(self.cluster)
             self.pd = mpd
         elif engine == 'dask':
+            self.cluster = cluster if cluster is not None else LocalCluster(n_workers=1, memory_limit='12GB')
+            self.client = Client(self.cluster)
             self.pd = dd
         elif engine == 'cudf': # we can use cudf or dd 
+            import cudf # RapidsAI
+            import dask_cudf
             if df_type == 'dask':
                 self.pd = dask_cudf
             else:
@@ -39,24 +48,32 @@ class Benchmark:
         elif engine == 'joblib':
             self.pd = pd
 
-        self.df = self.pd.read_parquet(self.file_dir, index='index')
-        self.other = self.pd.DataFrame(self.groupby_statistics(self.df).to_pandas())
-        self.other.columns = pd.Index([e[0]+'_' + e[1] for e in self.other.columns.tolist()])
+        # Read parquet with index as keyward (if it fails, try without it)
+        try: self.df = self.pd.read_parquet(self.file_dir, index='index')
+        except: self.df = self.pd.read_parquet(self.file_dir)
+    
+        # Create the other columns to do the joins
+        self.other = self.groupby_statistics()
+        self.other.columns = pd.Index([e[0] + '_' + e[1] for e in self.other.columns.tolist()])
 
-    def time_decorator(self, func):
+    def time_decorator(func):
         def wrapper(*args, **kwargs):
             start_time = time.time()
             logging.info(f'Starting {func.__name__}')
-            func(*args, **kwargs)
+            result = func(*args, **kwargs)
             logging.info(f'Finished {func.__name__}')
             end_time = time.time()
             execution_time = end_time - start_time
-            self.exec_times[func.__name__] = execution_time
+            args[0].exec_times[func.__name__] = execution_time
+            return result
         return wrapper
     
     @time_decorator
     def read_file_parquet(self):
-        return self.pd.read_parquet(self.file_dir, index='index')
+        # Read parquet with index as keyward (if it fails, try without it)
+        try: result = self.pd.read_parquet(self.file_dir, index='index')
+        except: result = self.pd.read_parquet(self.file_dir)
+        return result
 
     @time_decorator
     def count(self):
@@ -189,6 +206,12 @@ class Benchmark:
         if self.engine == 'dask':
             return self.pd.merge(self.df, self.other, left_index=True, right_index=True).compute()
 
+
+    def clear_cache(self):
+        if self.client: self.client.close()
+        del(self.df)
+        del(self.other)
+
     def run_benchmark(self):
         self.read_file_parquet()
         self.count()
@@ -205,4 +228,18 @@ class Benchmark:
         self.groupby_statistics()
         self.join_count()
         self.join_data()
+
+        # Finalize everything after running benchmark
+        self.clear_cache()
+
+
+if __name__ == '__main__':
+    input_folder = '/'.join(__file__.split('/')[:-3]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-3]) + '/datasets'
+    input_file = f'{input_folder}/ks_yellow_taxi_tripdata_2009-01.parquet'
+
+    # Testing modin
+    os.environ["MODIN_ENGINE"] = "dask"
+    cluster = LocalCluster(n_workers=1, threads_per_worker=1, memory_limit='12GB')
+    client = Client(cluster)
+    df = mpd.read_parquet(input_file)
 

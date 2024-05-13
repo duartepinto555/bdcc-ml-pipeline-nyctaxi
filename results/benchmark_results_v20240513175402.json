@@ -1,0 +1,62 @@
+[
+    {
+        "engine": "pandas",
+        "df_type": "pandas",
+        "results": {
+            "groupby_statistics": 0.5127813816070557,
+            "read_file_parquet": 19.312397718429565,
+            "count": 0.0,
+            "count_index_length": 0.0,
+            "mean": 0.06020522117614746,
+            "mean_of_sum": 0.13484787940979004,
+            "sum_columns": 0.04866480827331543,
+            "mean_of_product": 0.12825608253479004,
+            "product_columns": 0.043740034103393555,
+            "value_counts": 0.15997838973999023,
+            "mean_of_complicated_arithmetic_operation": 1.6619949340820312,
+            "complicated_arithmetic_operation": 1.5219056606292725,
+            "join_count": 0.0,
+            "join_data": 0.0
+        }
+    },
+    {
+        "engine": "modin",
+        "df_type": "pandas",
+        "results": {
+            "groupby_statistics": 0.862006664276123,
+            "read_file_parquet": 57.628737926483154,
+            "count": 0.0,
+            "count_index_length": 0.0010142326354980469,
+            "mean": 24.172463417053223,
+            "mean_of_sum": 0.3381063938140869,
+            "sum_columns": 0.0217437744140625,
+            "mean_of_product": 0.30277204513549805,
+            "product_columns": 0.017063140869140625,
+            "value_counts": 0.5873291492462158,
+            "mean_of_complicated_arithmetic_operation": 7.083778381347656,
+            "complicated_arithmetic_operation": 7.783507347106934,
+            "join_count": 0.0,
+            "join_data": 0.0
+        }
+    },
+    {
+        "engine": "dask",
+        "df_type": "pandas",
+        "results": {
+            "groupby_statistics": 1.4678654670715332,
+            "read_file_parquet": 0.019522666931152344,
+            "count": 37.51987147331238,
+            "count_index_length": 1.0730278491973877,
+            "mean": 0.5516760349273682,
+            "mean_of_sum": 0.8611555099487305,
+            "sum_columns": 1.866361379623413,
+            "mean_of_product": 0.5992770195007324,
+            "product_columns": 1.960139274597168,
+            "value_counts": 0.672783374786377,
+            "mean_of_complicated_arithmetic_operation": 2.658235788345337,
+            "complicated_arithmetic_operation": 4.301978588104248,
+            "join_count": 1.0719783306121826,
+            "join_data": 2.796156883239746
+        }
+    }
+]

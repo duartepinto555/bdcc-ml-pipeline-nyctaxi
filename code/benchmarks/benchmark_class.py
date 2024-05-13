@@ -233,7 +233,7 @@ class Benchmark:
         self.clear_cache()
 
     def get_results(self):
-        return self.exec_times
+        return ({'engine': self.engine, 'df_type': self.df_type, 'results': self.exec_times})
 
 if __name__ == '__main__':
     input_folder = '/'.join(__file__.split('/')[:-3]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-3]) + '/datasets'

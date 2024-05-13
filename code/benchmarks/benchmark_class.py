@@ -80,7 +80,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return len(self.df.compute())
         elif self.engine == 'joblib':
-            return Parallel(n_jobs=-1)(delayed(len)(self.df)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(len)(self.df)]) # We still have to define the chunks size.
         else:
             return len(self.df)
 
@@ -89,7 +89,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return len(self.df.index.compute())
         elif self.engine == 'joblib':
-            return Parallel(n_jobs=-1)(delayed(len)(self.df.index)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(len)(self.df.index)]) # We still have to define the chunks size.
         else:
             return len(self.df.index)
 
@@ -98,7 +98,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return self.df.fare_amt.mean().compute()
         elif self.engine == 'joblib':
-            return Parallel(n_jobs=-1)(delayed(np.mean)(self.df.fare_amt)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(np.mean)(self.df.fare_amt)]) # We still have to define the chunks size.
         else:
             return self.df.fare_amt.mean()
 
@@ -106,7 +106,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return self.df.fare_amt.std().compute()
         elif self.engine == 'joblib': 
-            return Parallel(n_jobs=-1)(delayed(np.std)(self.df.fare_amt)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(np.std)(self.df.fare_amt)]) # We still have to define the chunks size.
         else:
             return self.df.fare_amt.std()
 
@@ -115,7 +115,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return (self.df.fare_amt + self.df.tip_amt).mean().compute()
         elif self.engine == 'joblib':
-            return Parallel(n_jobs=-1)(delayed(np.mean)(self.df.fare_amt + self.df.tip_amt)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(np.mean)(self.df.fare_amt + self.df.tip_amt)]) # We still have to define the chunks size.
         else:
             return (self.df.fare_amt + self.df.tip_amt).mean()
 
@@ -124,7 +124,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return (self.df.fare_amt + self.df.tip_amt).compute()
         elif self.engine == 'joblib':
-            return Parallel(n_jobs=-1)(delayed(np.sum)(self.df.fare_amt + self.df.tip_amt)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(np.sum)(self.df.fare_amt + self.df.tip_amt)]) # We still have to define the chunks size.
         else:
             return (self.df.fare_amt + self.df.tip_amt)
 
@@ -133,7 +133,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return (self.df.fare_amt * self.df.tip_amt).mean().compute()
         elif self.engine == 'joblib':
-            return Parallel(n_jobs=-1)(delayed(np.mean)(self.df.fare_amt * self.df.tip_amt)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(np.mean)(self.df.fare_amt * self.df.tip_amt)]) # We still have to define the chunks size.
         else:
             return (self.df.fare_amt * self.df.tip_amt).mean()
 
@@ -142,7 +142,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return (self.df.fare_amt * self.df.tip_amt).compute()
         elif self.engine == 'joblib':
-            return Parallel(n_jobs=-1)(delayed(np.prod)(self.df.fare_amt * self.df.tip_amt)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(np.prod)(self.df.fare_amt * self.df.tip_amt)]) # We still have to define the chunks size.
         else:
             return (self.df.fare_amt * self.df.tip_amt)
 
@@ -165,7 +165,7 @@ class Benchmark:
         if self.engine in ['dask', 'cudf']:
             return ret.mean().compute()
         elif self.engine == 'joblib':
-            return Parallel(n_jobs=-1)(delayed(np.mean)(ret)) # We still have to define the chunks size.
+            return Parallel(n_jobs=-1)([delayed(np.mean)(ret)]) # We still have to define the chunks size.
         else:
             return ret.mean()
 

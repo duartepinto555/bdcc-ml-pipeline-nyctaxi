@@ -20,7 +20,7 @@ def main():
         {'engine': 'pandas', 'df_type': 'pandas'},
         {'engine': 'modin', 'df_type': 'pandas'},
         {'engine': 'dask', 'df_type': 'pandas'},
-        # {'engine': 'joblib', 'df_type': 'pandas'},
+        {'engine': 'joblib', 'df_type': 'pandas'},
         # {'engine': 'cudf', 'df_type': 'dask'},
         # {'engine': 'cudf', 'df_type': 'pandas'},
     ]
@@ -33,7 +33,7 @@ def main():
         benchmarks[-1].run_benchmark()
     
     # Save results to json file
-    output_file = '/'.join(__file__.split('/')[:-2]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-2])
+    output_file = '/'.join(__file__.split('/')[:-1]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-1])
     output_file = f'{output_file}/../results/benchmark_results_v{dt.datetime.now().strftime("%Y%m%d%H%M%S")}.json'
     with open(output_file, 'w') as f:
         json.dump([b.get_results() for b in benchmarks], f, indent=4)

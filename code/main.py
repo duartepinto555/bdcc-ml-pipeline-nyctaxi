@@ -1,3 +1,5 @@
+import json
+
 import tqdm
 import datetime as dt
 import download_taxi_datasets
@@ -29,6 +31,13 @@ def main():
             **engine_config 
         ))
         benchmarks[-1].run_benchmark()
+    
+    # Save results to json file
+    output_file = '/'.join(__file__.split('/')[:-2]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-2])
+    output_file = f'{output_file}/../results/benchmark_results_v{dt.datetime.now().strftime("%Y%m%d%H%M%S")}.json'
+    with open(f'{output_folder}/benchmark_results.json', 'w') as f:
+        json.dump([b.to_dict() for b in benchmarks], f)
+    
 
 
 if __name__ == '__main__':

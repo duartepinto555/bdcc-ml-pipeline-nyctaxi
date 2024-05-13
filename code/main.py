@@ -36,7 +36,7 @@ def main():
     output_file = '/'.join(__file__.split('/')[:-2]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-2])
     output_file = f'{output_file}/../results/benchmark_results_v{dt.datetime.now().strftime("%Y%m%d%H%M%S")}.json'
     with open(f'{output_folder}/benchmark_results.json', 'w') as f:
-        json.dump([b.to_dict() for b in benchmarks], f)
+        json.dump([b.get_results() for b in benchmarks], f)
     
 
 

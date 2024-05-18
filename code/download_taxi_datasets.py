@@ -34,9 +34,11 @@ def download_taxi_files(date_range, output_folder):
 
 
 def treat_files(fname, outname):
-    cluster = LocalCluster(n_workers=4, threads_per_worker=3, memory_limit='30GiB')
+    # cluster = LocalCluster(n_workers=4, threads_per_worker=3, memory_limit='30GiB')
+    cluster = LocalCluster(n_workers=1, threads_per_worker=7, memory_limit='6GiB')
     
-    with Client(cluster):
+    with Client(cluster) as client:
+        print(f'Initialized Dask Cluster. Visualize dashboard at {client.dashboard_link}')
         # Renaming columns to matchh article ones
         renaming_cols = {
             'passenger_count': 'Passenger_Count',

@@ -1,10 +1,10 @@
 tqdm
 requests
-Dask[complete]
-pandas
-PyArrow
-NumPy==1.20.3
-Koalas
+pandas==1.1.5
+PyArrow==1.0.1
+NumPy==1.19.5
+Koalas==1.7.0
+Dask[complete]==2021.03.0
 pyspark
 ipykernel
 modin

@@ -7,13 +7,8 @@ from benchmarks.benchmark_class import Benchmark
 
 
 def main():    
-    # Which years we wan't to fetch the data from
-    years = range(2009, 2010)
-    date_range = [dt.datetime(year, month, 1) for year in years for month in range(1, 13)]
-
-    # To which directory do we wish to save the data in 
-    output_folder = '/'.join(__file__.split('/')[:-2]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-2]) + '/datasets'
-    # download_taxi_datasets.download_taxi_files(date_range, output_folder)
+    # First make sure everything is downloaded correctly
+    output_folder = download_taxi_datasets.main()
 
     # Run benchmarks for all engines
     engine_configs = [
@@ -27,15 +22,15 @@ def main():
     benchmarks = []
     for engine_config in tqdm.tqdm(engine_configs, desc='Running benchmarks with different configs'):
         benchmarks.append(Benchmark(
-            file_dir=f'{output_folder}/ks_yellow_taxi_tripdata_2009-01.parquet',
+            file_dir=f'{output_folder}',
             **engine_config 
         ))
         benchmarks[-1].run_benchmark()
     
     # Save results to json file
-    output_file = '/'.join(__file__.split('/')[:-1]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-1])
-    output_file = f'{output_file}/../results/benchmark_results_v{dt.datetime.now().strftime("%Y%m%d%H%M%S")}.json'
-    with open(output_file, 'w') as f:
+    results_file = '/'.join(__file__.split('/')[:-1]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-1])
+    results_file = f'{results_file}/../results/benchmark_results_v{dt.datetime.now().strftime("%Y%m%d%H%M%S")}.json'
+    with open(results_file, 'w') as f:
         json.dump([b.get_results() for b in benchmarks], f, indent=4)
     
 

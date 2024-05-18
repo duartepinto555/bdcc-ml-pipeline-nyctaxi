@@ -3,7 +3,7 @@ requests
 Dask[complete]
 pandas
 PyArrow
-NumPy
+NumPy==1.20.3
 Koalas
 pyspark
 ipykernel

@@ -174,9 +174,4 @@ code/notebooks/dask-worker-space/worker-qn242_xj.dirlock
 code/notebooks/dask-worker-space/worker-rny67kem.dirlock
 datasets/*
 .vscode/launch.json
-dask-worker-space/global.lock
-dask-worker-space/purge.lock
-dask-worker-space/worker-snabopwp.dirlock
-dask-worker-space/worker-zoymuiot.dirlock
-dask-worker-space/worker-d_tglhbx.dirlock
-dask-worker-space/worker-hlu44tne.dirlock
+**/dask-worker-space

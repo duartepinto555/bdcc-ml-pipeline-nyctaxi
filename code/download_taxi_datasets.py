@@ -83,6 +83,7 @@ def treat_files(fname, outname):
             'Tolls_Amt': 'float64',
             'Total_Amt': 'float64'
         }
+        
         # Convert Article dtype_dict to new one
         dtype_dict = {col: dtype_dict[renaming_cols[col]] for col in renaming_cols.keys()}
         df = dd.read_parquet(fname, dtype=dtype_dict)
@@ -104,7 +105,7 @@ def treat_files(fname, outname):
 
         # Model cannot run with a single unique value.
         df = df[df['fare_amt'].duplicated(keep=False)]
-        
+
         # Save dataframe as parquet file in output folder
         df.to_parquet(outname)
 

@@ -3,10 +3,11 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import mean_absolute_error, r2_score
 import xgboost as xgb
 import matplotlib.pyplot as plt
+import pandas as pd
 
 fname = "..."
 
-df = pd.read_parquet(fname)
+df = pd.read_parquet(fname) # Change from pandas
 
 # Define target variable and features
 y = df["fare_amt"]

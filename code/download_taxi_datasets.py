@@ -3,6 +3,7 @@ import tqdm
 import requests
 import pandas as pd
 import datetime as dt
+from math import sin, cos, sqrt, atan2, radians
 
 from multiprocessing import Pool
 
@@ -10,6 +11,21 @@ from multiprocessing import Pool
 import dask.dataframe as dd
 from dask.distributed import Client, LocalCluster
 
+def calculate_distance(lat_1, lon_1, lat_2, lon_2):
+    
+    R = 6373.0
+    lat_1 = radians(lat_1)
+    lon_1 = radians(lon_1)
+    lat_2 = radians(lat_2)
+    lon_2 = radians(lon_2)
+
+    dlon = lon_2 - lon_1
+    dlat = lat_2 - lat_1
+
+    a = sin(dlat / 2)**2 + cos(lat_1) * cos(lat_2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c
 
 def _download_taxi_files(date_fname):
     # Get date and fname from input
@@ -21,6 +37,7 @@ def _download_taxi_files(date_fname):
     # Download file and write it's content
     response = requests.get(yellow_taxis_url.format(year=date.year, month=date.month))
     with open(fname, 'wb') as f: f.write(response.content)
+    
 def download_taxi_files(date_range, output_folder):
     # Create output_folder if it doesn't exist
     if not os.path.isdir(output_folder): os.mkdir(output_folder)
@@ -83,6 +100,8 @@ def treat_files(fname, outname):
         # Make columns all lower
         df.columns = df.columns.str.lower()
 
+        df['distance'] = df.apply(lambda x: calculate_distance(x['start_lat'], x['start_lon'], x['end_lat'], x['end_lon']), axis=1)
+        
         # Save dataframe as parquet file in output folder
         df.to_parquet(outname)
 

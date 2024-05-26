@@ -101,6 +101,9 @@ def treat_files(fname, outname):
         df.columns = df.columns.str.lower()
 
         df['distance'] = df.apply(lambda x: calculate_distance(x['start_lat'], x['start_lon'], x['end_lat'], x['end_lon']), axis=1)
+
+        # Model cannot run with a single unique value.
+        df = df[df['fare_amt'].duplicated(keep=False)]
         
         # Save dataframe as parquet file in output folder
         df.to_parquet(outname)

@@ -112,7 +112,7 @@ def treat_files(fname, outname):
 
 def main():
     # Which years we wan't to fetch the data from
-    years = range(2011, 2016)
+    years = range(2011, 2013)
     date_range = [dt.datetime(year, month, 1) for year in years for month in range(1, 13)]
 
     # To which directory do we wish to save the data in 

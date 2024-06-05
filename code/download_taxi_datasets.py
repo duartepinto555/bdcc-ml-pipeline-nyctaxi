@@ -52,11 +52,11 @@ def download_taxi_files(date_range, output_folder):
 
 def treat_files(fname, outname):
     # cluster = LocalCluster(n_workers=4, threads_per_worker=3, memory_limit='30GiB')
-    cluster = LocalCluster(n_workers=1, threads_per_worker=7, memory_limit='6GiB')
+    cluster = LocalCluster(n_workers=2, threads_per_worker=1, memory_limit='10GiB')
     
     with Client(cluster) as client:
         print(f'Initialized Dask Cluster. Visualize dashboard at {client.dashboard_link}')
-        # Renaming columns to matchh article ones
+        # Renaming columns to match article ones
         renaming_cols = {
             'passenger_count': 'Passenger_Count',
             'fare_amount': 'Fare_Amt',
@@ -104,7 +104,8 @@ def treat_files(fname, outname):
         df['distance'] = df.apply(lambda x: calculate_distance(x['start_lat'], x['start_lon'], x['end_lat'], x['end_lon']), axis=1)
 
         # Model cannot run with a single unique value.
-        df = df[df['fare_amt'].duplicated(keep=False)]
+        # df = df[df['fare_amt'].duplicated(keep=False)]
+        df = df.drop_duplicates(subset=['fare_amt'])
 
         # Save dataframe as parquet file in output folder
         df.to_parquet(outname)

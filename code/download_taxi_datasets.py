@@ -7,7 +7,6 @@ from math import sin, cos, sqrt, atan2, radians
 
 from multiprocessing import Pool
 
-
 import dask.dataframe as dd
 from dask.distributed import Client, LocalCluster
 
@@ -40,7 +39,7 @@ def _download_taxi_files(date_fname):
     
 def download_taxi_files(date_range, output_folder):
     # Create output_folder if it doesn't exist
-    if not os.path.isdir(output_folder): os.mkdir(output_folder)
+    if not os.path.isdir(output_folder): os.makedirs(output_folder, exist_ok=True)
 
     # Use a Pool of workers to download files in parallel
     date_output_name = [(date, f'{output_folder}/yellow_taxi_tripdata_{date.year:02d}-{date.month:02d}.parquet') for date in date_range]

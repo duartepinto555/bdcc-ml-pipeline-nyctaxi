@@ -21,6 +21,7 @@ sudo apt install apache2
 sudo wget https://dlcdn.apache.org/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz
 sudo tar xvf spark-3.5.1-bin-hadoop3.tgz
 sudo mv spark-3.5.1-bin-hadoop3/ /opt/spark
+sudo rm spark-3.5.1-bin-hadoop3.tgz
 
 echo "export SPARK_HOME=/opt/spark" >> ~/.bashrc
 echo "export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin" >> ~/.bashrc

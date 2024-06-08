@@ -206,7 +206,6 @@ class Benchmark:
         if self.engine == 'dask':
             return self.pd.merge(self.df, self.other, left_index=True, right_index=True).compute()
 
-
     def clear_cache(self):
         if self.client: self.client.close()
         del(self.df)
@@ -219,12 +218,12 @@ class Benchmark:
         self.mean()
         self.standard_deviation()
         self.mean_of_sum()
-        self.sum_columns()
+        # self.sum_columns()
         self.mean_of_product()
-        self.product_columns()
+        # self.product_columns()
         self.value_counts()
         self.mean_of_complicated_arithmetic_operation()
-        self.complicated_arithmetic_operation()
+        # self.complicated_arithmetic_operation()
         self.groupby_statistics()
         self.join_count()
         self.join_data()

@@ -9,5 +9,6 @@ pyspark
 ipykernel
 modin
 joblib
+scipy
 # cudf-cu12==24.4.*       # May require "--extra-index-url=https://pypi.nvidia.com"
 # dask-cudf-cu12==24.4.*  # May require "--extra-index-url=https://pypi.nvidia.com"

@@ -3,8 +3,7 @@ requests
 Dask[complete]
 pandas
 PyArrow
-NumPy
-Koalas
+NumPy     # Due to Koalas being a bit old, it requires this version
 pyspark
 ipykernel
 modin

@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+import traceback
 import numpy as np
 import modin.pandas as mpd
 import dask.dataframe as dd
@@ -8,6 +9,8 @@ import dask.dataframe as dd
 from typing import Literal
 from joblib import Parallel, delayed
 from dask.distributed import Client, LocalCluster
+
+logging.basicConfig(level=logging.INFO, filename="benchmark_class.log", filemode='w', format='%(funcName)s %(lineno)d %(levelname)s %(name)s: %(message)s')
 
 
 class Benchmark:
@@ -17,7 +20,8 @@ class Benchmark:
             file_dir,
             engine: Literal['pandas', 'modin', 'dask', 'cudf', 'joblib']='pandas',
             df_type: Literal['pandas', 'dask', 'ray', 'unidist']='pandas',
-            cluster=None,
+            dask_init_args: dict={'n_workers': 1, 'threads_per_worker': 2, 'memory_limit': '20GiB'},
+            ray_init_args: dict={'num_cpus': 4, 'num_gpus': 0},
         ):
         self.engine = engine # engine can be 'pandas', 'modin', 'dask', 'cudf', or 'joblib'
         self.df_type = df_type # df_type can be 'pandas', 'dask'
@@ -27,12 +31,16 @@ class Benchmark:
         if engine == 'modin':
             os.environ["MODIN_ENGINE"] = df_type if df_type != 'pandas' else 'dask'  # Modin will use Dask if nothing else provided
             if os.environ['MODIN_ENGINE'] == 'dask': 
-                self.cluster = cluster if cluster is not None else LocalCluster(n_workers=1, threads_per_worker=2, memory_limit='20GiB')
+                self.cluster = LocalCluster(**dask_init_args)
                 self.client = Client(self.cluster)
+                logging.info(f'({self.engine}, {self.df_type}): Starting dask client. Dashboard URL -> {self.client.dashboard_link}')
+            elif os.environ['MODIN_ENGINE'] == 'ray':
+                import ray
+                ray.init(**ray_init_args)
             elif os.environ['MODIN_ENGINE'] == 'unidist': os.environ["UNIDIST_BACKEND"] = "mpi"  # Unidist will use MPI backend
             self.pd = mpd
         elif engine == 'dask':
-            self.cluster = cluster if cluster is not None else LocalCluster(n_workers=1, threads_per_worker=2, memory_limit='20GiB')
+            self.cluster = LocalCluster(**dask_init_args)
             self.client = Client(self.cluster)
             self.pd = dd
         elif engine == 'cudf': # we can use cudf or dd 
@@ -59,16 +67,17 @@ class Benchmark:
 
     def time_decorator(func):
         def wrapper(*args, **kwargs):
+            self = args[0]
             start_time = time.time()
-            logging.info(f'Starting {func.__name__}')
+            logging.info(f'({self.engine}, {self.df_type}): Starting {func.__name__}')
             try: result = func(*args, **kwargs)
-            except: 
-                logging.info(f'Failed running {func.__name__}')
+            except Exception as e: 
+                logging.info(f'({self.engine}, {self.df_type}): Failed running {func.__name__}. Error: {"".join(traceback.format_tb(e.__traceback__))}')
                 end_time = time.time()
                 execution_time = end_time - start_time
                 args[0].exec_times[func.__name__] = f'Failed after {execution_time} seconds'
                 return
-            logging.info(f'Finished {func.__name__}')
+            logging.info(f'({self.engine}, {self.df_type}): Finished {func.__name__}')
             end_time = time.time()
             execution_time = end_time - start_time
             args[0].exec_times[func.__name__] = execution_time
@@ -83,7 +92,7 @@ class Benchmark:
 
     @time_decorator
     def count(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return len(self.df.compute())
         elif self.engine == 'joblib':
             return Parallel(n_jobs=-1)([delayed(len)(self.df)]) # We still have to define the chunks size.
@@ -92,7 +101,7 @@ class Benchmark:
 
     @time_decorator
     def count_index_length(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return len(self.df.index.compute())
         elif self.engine == 'joblib':
             return Parallel(n_jobs=-1)([delayed(len)(self.df.index)]) # We still have to define the chunks size.
@@ -101,7 +110,7 @@ class Benchmark:
 
     @time_decorator
     def mean(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return self.df.fare_amt.mean().compute()
         elif self.engine == 'joblib':
             return Parallel(n_jobs=-1)([delayed(np.mean)(self.df.fare_amt)]) # We still have to define the chunks size.
@@ -110,7 +119,7 @@ class Benchmark:
 
     @time_decorator
     def standard_deviation(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return self.df.fare_amt.std().compute()
         elif self.engine == 'joblib': 
             return Parallel(n_jobs=-1)([delayed(np.std)(self.df.fare_amt)]) # We still have to define the chunks size.
@@ -119,7 +128,7 @@ class Benchmark:
 
     @time_decorator
     def mean_of_sum(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return (self.df.fare_amt + self.df.tip_amt).mean().compute()
         elif self.engine == 'joblib':
             return Parallel(n_jobs=-1)([delayed(np.mean)(self.df.fare_amt + self.df.tip_amt)]) # We still have to define the chunks size.
@@ -128,7 +137,7 @@ class Benchmark:
 
     @time_decorator
     def sum_columns(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return (self.df.fare_amt + self.df.tip_amt).compute()
         elif self.engine == 'joblib':
             return Parallel(n_jobs=-1)([delayed(np.sum)(self.df.fare_amt + self.df.tip_amt)]) # We still have to define the chunks size.
@@ -137,7 +146,7 @@ class Benchmark:
 
     @time_decorator
     def mean_of_product(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return (self.df.fare_amt * self.df.tip_amt).mean().compute()
         elif self.engine == 'joblib':
             return Parallel(n_jobs=-1)([delayed(np.mean)(self.df.fare_amt * self.df.tip_amt)]) # We still have to define the chunks size.
@@ -146,7 +155,7 @@ class Benchmark:
 
     @time_decorator
     def product_columns(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return (self.df.fare_amt * self.df.tip_amt).compute()
         elif self.engine == 'joblib':
             return Parallel(n_jobs=-1)([delayed(np.prod)(self.df.fare_amt * self.df.tip_amt)]) # We still have to define the chunks size.
@@ -155,7 +164,7 @@ class Benchmark:
 
     @time_decorator
     def value_counts(self):
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return self.df.fare_amt.value_counts().compute()
         else:
             return self.df.fare_amt.value_counts()
@@ -169,7 +178,7 @@ class Benchmark:
         temp = (np.sin((theta_2-theta_1)/2*np.pi/180)**2
                + np.cos(theta_1*np.pi/180)*np.cos(theta_2*np.pi/180) * np.sin((phi_2-phi_1)/2*np.pi/180)**2)
         ret = 2 * np.arctan2(np.sqrt(temp), np.sqrt(1-temp))
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return ret.mean().compute()
         elif self.engine == 'joblib':
             return Parallel(n_jobs=-1)([delayed(np.mean)(ret)]) # We still have to define the chunks size.
@@ -185,7 +194,7 @@ class Benchmark:
         temp = (np.sin((theta_2-theta_1)/2*np.pi/180)**2
                + np.cos(theta_1*np.pi/180)*np.cos(theta_2*np.pi/180) * np.sin((phi_2-phi_1)/2*np.pi/180)**2)
         ret = 2 * np.arctan2(np.sqrt(temp), np.sqrt(1-temp))
-        if self.engine in ['dask', 'cudf']:
+        if self.engine == 'dask' or self.df_type == 'dask':
             return ret.compute()
         else:
             return ret
@@ -214,7 +223,9 @@ class Benchmark:
             return self.pd.merge(self.df, self.other, left_index=True, right_index=True).compute()
 
     def clear_cache(self):
-        if self.client: self.client.close()
+        if self.client:
+            self.client.close()
+            self.client.shutdown()
         del(self.df)
         del(self.other)
 
@@ -231,7 +242,7 @@ class Benchmark:
         self.value_counts()
         self.mean_of_complicated_arithmetic_operation()
         # self.complicated_arithmetic_operation()
-        self.groupby_statistics()
+        # self.groupby_statistics()  # Already was executed in the __init__ method
         self.join_count()
         self.join_data()
 

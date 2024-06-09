@@ -49,7 +49,7 @@ def download_taxi_files(date_range, output_folder):
     return date_output_name
 
 
-def treat_files(fname, outname, num_partitions=24):
+def treat_files(fname, outname, num_partitions=24, partition_size=None):
     # If files already exist in output folder, than data treatment has already been done
     if len(os.listdir(outname)) > 3: 
         return
@@ -112,14 +112,20 @@ def treat_files(fname, outname, num_partitions=24):
         # df = df[df['fare_amt'].duplicated(keep=False)]
         # df = df.drop_duplicates(subset=['fare_amt'])
 
+        # Repartition the dataframe (create more (or less) files)
+        # Give priority to partition_size, if it doesn't exist, use num_partitions
+        df = df.repartition(partition_size=partition_size) if partition_size is not None else df.repartition(npartitions=num_partitions)
+        
         # Save dataframe as parquet file in output folder
-        df.repartition(npartitions=num_partitions).to_parquet(outname)
+        df.to_parquet(outname)
+
+        client.shutdown()
 
 
-def main():
+def main(years=range(2011, 2012), n_partitions=8, sample_size=6, partition_size=None):
     # Which years we wan't to fetch the data from
-    years = range(2011, 2012)
     date_range = [dt.datetime(year, month, 1) for year in years for month in range(1, 13)]
+    date_range = date_range[:sample_size]     # Use only the first 6 months, this makes the script possible to execute using only pandas
 
     # To which directory do we wish to save the data in 
     split = '/' if '/' in __file__ else '\\'
@@ -134,7 +140,7 @@ def main():
     # Treating files
     output_folder_2 = '/'.join(output_folder.split('/')[:-1]) + '/ks_taxi_parquet'
     os.makedirs(output_folder_2, exist_ok=True)
-    treat_files(output_folder, output_folder_2, num_partitions=24)
+    treat_files(output_folder, output_folder_2, num_partitions=n_partitions, partition_size=partition_size)
     return output_folder_2
 
 

@@ -8,18 +8,24 @@ from benchmarks.benchmark_class import Benchmark
 
 def main():    
     # First make sure everything is downloaded correctly
-    output_folder = download_taxi_datasets.main()
+    output_folder = download_taxi_datasets.main(years=range(2011,2013), partition_size='250MB', sample_size=100)
 
     # Run benchmarks for all engines
     engine_configs = [
-        {'engine': 'pandas', 'df_type': 'pandas'},    # Not possible to read parquet with normal pandas
-        {'engine': 'modin', 'df_type': 'dask'},
-        {'engine': 'modin', 'df_type': 'ray'},
-        {'engine': 'modin', 'df_type': 'unidist'},
-        {'engine': 'dask', 'df_type': 'pandas'},
-        {'engine': 'joblib', 'df_type': 'pandas'},
+        # {'engine': 'pandas', 'df_type': 'pandas'},
+        # {'engine': 'modin', 'df_type': 'dask'},
+        # {'engine': 'modin', 'df_type': 'ray'},
+        # {'engine': 'modin', 'df_type': 'unidist'},
+        {
+            'engine': 'dask', 'df_type': 'dask', 'dask_init_args': {
+                'n_workers': 2,
+                'threads_per_worker': 2,
+                'memory_limit': '10GiB'
+            }
+        },
+        # {'engine': 'joblib', 'df_type': 'pandas'},
         {'engine': 'cudf', 'df_type': 'dask'},
-        {'engine': 'cudf', 'df_type': 'pandas'},
+        # {'engine': 'cudf', 'df_type': 'pandas'},
     ]
     benchmarks = []
     for engine_config in tqdm.tqdm(engine_configs, desc='Running benchmarks with different configs'):

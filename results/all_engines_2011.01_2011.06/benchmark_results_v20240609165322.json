@@ -1,0 +1,92 @@
+[
+    {
+        "engine": "pandas",
+        "df_type": "pandas",
+        "results": {
+            "read_file_parquet": 4.036894798278809,
+            "groupby_statistics": 3.6606521606445312,
+            "count": 0.00016617774963378906,
+            "count_index_length": 0.00011587142944335938,
+            "mean": 0.26626133918762207,
+            "standard_deviation": 0.9212102890014648,
+            "mean_of_sum": 0.2756044864654541,
+            "mean_of_product": 0.1730501651763916,
+            "value_counts": 0.857823371887207,
+            "mean_of_complicated_arithmetic_operation": 8.949748992919922,
+            "join_count": 5.316734313964844e-05,
+            "join_data": 2.8371810913085938e-05
+        }
+    },
+    {
+        "engine": "dask",
+        "df_type": "dask",
+        "results": {
+            "read_file_parquet": 0.014031171798706055,
+            "groupby_statistics": 4.1924827098846436,
+            "count": 43.75326895713806,
+            "count_index_length": 5.801168441772461,
+            "mean": 1.3006870746612549,
+            "standard_deviation": 1.462287425994873,
+            "mean_of_sum": 1.7168354988098145,
+            "mean_of_product": 1.5811569690704346,
+            "value_counts": 1.9017279148101807,
+            "mean_of_complicated_arithmetic_operation": 6.507209539413452,
+            "join_count": 5.644097805023193,
+            "join_data": 4.551046371459961
+        }
+    },
+    {
+        "engine": "joblib",
+        "df_type": "pandas",
+        "results": {
+            "read_file_parquet": 2.296631097793579,
+            "groupby_statistics": 3.0732202529907227,
+            "count": 8.94447374343872,
+            "count_index_length": 0.4997892379760742,
+            "mean": 0.8707971572875977,
+            "standard_deviation": 1.1821470260620117,
+            "mean_of_sum": 0.7806036472320557,
+            "mean_of_product": 0.7858021259307861,
+            "value_counts": 0.6793615818023682,
+            "mean_of_complicated_arithmetic_operation": 7.774816513061523,
+            "join_count": 5.221366882324219e-05,
+            "join_data": 2.7418136596679688e-05
+        }
+    },
+    {
+        "engine": "cudf",
+        "df_type": "dask",
+        "results": {
+            "read_file_parquet": 1.4897873401641846,
+            "groupby_statistics": 0.1680161952972412,
+            "count": 8.864435911178589,
+            "count_index_length": 2.3686766624450684,
+            "mean": 0.991607666015625,
+            "standard_deviation": 1.1089682579040527,
+            "mean_of_sum": 1.1318507194519043,
+            "mean_of_product": 1.1073529720306396,
+            "value_counts": 1.0954887866973877,
+            "mean_of_complicated_arithmetic_operation": 2.6081552505493164,
+            "join_count": 0.00011348724365234375,
+            "join_data": 4.100799560546875e-05
+        }
+    },
+    {
+        "engine": "cudf",
+        "df_type": "pandas",
+        "results": {
+            "read_file_parquet": 3.7560231685638428,
+            "groupby_statistics": 0.5307788848876953,
+            "count": 0.0002777576446533203,
+            "count_index_length": 0.00014901161193847656,
+            "mean": 0.05801820755004883,
+            "standard_deviation": 0.026753664016723633,
+            "mean_of_sum": 0.10889816284179688,
+            "mean_of_product": 0.1119530200958252,
+            "value_counts": 0.21164226531982422,
+            "mean_of_complicated_arithmetic_operation": 1.174546480178833,
+            "join_count": 5.316734313964844e-05,
+            "join_data": 2.5987625122070312e-05
+        }
+    }
+]

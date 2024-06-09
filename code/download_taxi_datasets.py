@@ -49,9 +49,13 @@ def download_taxi_files(date_range, output_folder):
     return date_output_name
 
 
-def treat_files(fname, outname):
+def treat_files(fname, outname, num_partitions=24):
+    # If files already exist in output folder, than data treatment has already been done
+    if len(os.listdir(outname)) > 3: 
+        return
+
     # cluster = LocalCluster(n_workers=4, threads_per_worker=3, memory_limit='30GiB')
-    cluster = LocalCluster(n_workers=2, threads_per_worker=1, memory_limit='10GiB')
+    cluster = LocalCluster(n_workers=1, threads_per_worker=3, memory_limit='20GiB')
     
     with Client(cluster) as client:
         print(f'Initialized Dask Cluster. Visualize dashboard at {client.dashboard_link}')
@@ -68,6 +72,8 @@ def treat_files(fname, outname):
 
             'tolls_amount': 'Tolls_Amt',
             'total_amount': 'Total_Amt',
+            'trip_distance': 'distance',
+            'tpep_pickup_datetime': 'Pickup_Datetime'
         }
 
         # Copying the dtype dict from the article
@@ -80,7 +86,9 @@ def treat_files(fname, outname):
             'Fare_Amt': 'float64', 
             'Tip_Amt': 'float64', 
             'Tolls_Amt': 'float64',
-            'Total_Amt': 'float64'
+            'Total_Amt': 'float64',
+            'distance': 'float64',
+            'Pickup_Datetime': 'datetime'
         }
         
         # Convert Article dtype_dict to new one
@@ -100,19 +108,17 @@ def treat_files(fname, outname):
         # Make columns all lower
         df.columns = df.columns.str.lower()
 
-        df['distance'] = df.apply(lambda x: calculate_distance(x['start_lat'], x['start_lon'], x['end_lat'], x['end_lon']), axis=1)
-
         # Model cannot run with a single unique value.
         # df = df[df['fare_amt'].duplicated(keep=False)]
-        df = df.drop_duplicates(subset=['fare_amt'])
+        # df = df.drop_duplicates(subset=['fare_amt'])
 
         # Save dataframe as parquet file in output folder
-        df.to_parquet(outname)
+        df.repartition(npartitions=num_partitions).to_parquet(outname)
 
 
 def main():
     # Which years we wan't to fetch the data from
-    years = range(2011, 2013)
+    years = range(2011, 2012)
     date_range = [dt.datetime(year, month, 1) for year in years for month in range(1, 13)]
 
     # To which directory do we wish to save the data in 
@@ -128,7 +134,7 @@ def main():
     # Treating files
     output_folder_2 = '/'.join(output_folder.split('/')[:-1]) + '/ks_taxi_parquet'
     os.makedirs(output_folder_2, exist_ok=True)
-    treat_files(output_folder, output_folder_2)
+    treat_files(output_folder, output_folder_2, num_partitions=24)
     return output_folder_2
 
 

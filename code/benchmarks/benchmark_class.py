@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 import modin.pandas as mpd
 import dask.dataframe as dd
-# import cudf # RapidsAI
-# import dask_cudf
 
 from typing import Literal
 from joblib import Parallel, delayed
@@ -19,7 +17,7 @@ class Benchmark:
             self,
             file_dir,
             engine: Literal['pandas', 'modin', 'dask', 'cudf', 'joblib']='pandas',
-            df_type: Literal['pandas', 'dask']='pandas',
+            df_type: Literal['pandas', 'dask', 'ray', 'unidist']='pandas',
             cluster=None,
         ):
         self.engine = engine # engine can be 'pandas', 'modin', 'dask', 'cudf', or 'joblib'
@@ -30,12 +28,14 @@ class Benchmark:
         # Default "engine"
         self.pd = pd
         if engine == 'modin':
-            os.environ["MODIN_ENGINE"] = "dask"  # Modin will use Dask
-            self.cluster = cluster if cluster is not None else LocalCluster(n_workers=1, memory_limit='12GB')
-            self.client = Client(self.cluster)
+            os.environ["MODIN_ENGINE"] = df_type if df_type != 'pandas' else 'dask'  # Modin will use Dask if nothing else provided
+            if os.environ['MODIN_ENGINE'] == 'dask': 
+                self.cluster = cluster if cluster is not None else LocalCluster(n_workers=1, threads_per_worker=2, memory_limit='20GiB')
+                self.client = Client(self.cluster)
+            elif os.environ['MODIN_ENGINE'] == 'unidist': os.environ["UNIDIST_BACKEND"] = "mpi"  # Unidist will use MPI backend
             self.pd = mpd
         elif engine == 'dask':
-            self.cluster = cluster if cluster is not None else LocalCluster(n_workers=1, memory_limit='12GB')
+            self.cluster = cluster if cluster is not None else LocalCluster(n_workers=1, threads_per_worker=2, memory_limit='20GiB')
             self.client = Client(self.cluster)
             self.pd = dd
         elif engine == 'cudf': # we can use cudf or dd 
@@ -102,6 +102,7 @@ class Benchmark:
         else:
             return self.df.fare_amt.mean()
 
+    @time_decorator
     def standard_deviation(self):
         if self.engine in ['dask', 'cudf']:
             return self.df.fare_amt.std().compute()

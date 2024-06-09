@@ -10,5 +10,9 @@ modin
 joblib
 scipy
 matplotlib
+ray==2.24.0
+unidist==0.7.0
+mpi4py==3.1.6
+ipywidgets
 # cudf-cu12==24.4.*       # May require "--extra-index-url=https://pypi.nvidia.com"
 # dask-cudf-cu12==24.4.*  # May require "--extra-index-url=https://pypi.nvidia.com"

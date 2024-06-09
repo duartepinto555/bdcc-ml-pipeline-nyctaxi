@@ -12,12 +12,14 @@ def main():
 
     # Run benchmarks for all engines
     engine_configs = [
-        {'engine': 'pandas', 'df_type': 'pandas'},
-        {'engine': 'modin', 'df_type': 'pandas'},
+        # {'engine': 'pandas', 'df_type': 'pandas'},    # Not possible to read parquet with normal pandas
+        # {'engine': 'modin', 'df_type': 'dask'},
+        {'engine': 'modin', 'df_type': 'ray'},
+        {'engine': 'modin', 'df_type': 'unidist'},
         {'engine': 'dask', 'df_type': 'pandas'},
         {'engine': 'joblib', 'df_type': 'pandas'},
-        # {'engine': 'cudf', 'df_type': 'dask'},
-        # {'engine': 'cudf', 'df_type': 'pandas'},
+        {'engine': 'cudf', 'df_type': 'dask'},
+        {'engine': 'cudf', 'df_type': 'pandas'},
     ]
     benchmarks = []
     for engine_config in tqdm.tqdm(engine_configs, desc='Running benchmarks with different configs'):
@@ -25,8 +27,10 @@ def main():
             file_dir=f'{output_folder}',
             **engine_config 
         ))
-        benchmarks[-1].run_benchmark()
-    
+        try: benchmarks[-1].run_benchmark()
+        except: pass
+        
+        
     # Save results to json file
     results_file = '/'.join(__file__.split('/')[:-1]) if '/' in __file__ else '/'.join(__file__.split('\\')[:-1])
     results_file = f'{results_file}/../results/benchmark_results_v{dt.datetime.now().strftime("%Y%m%d%H%M%S")}.json'

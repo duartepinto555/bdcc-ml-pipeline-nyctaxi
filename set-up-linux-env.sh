@@ -52,12 +52,14 @@ echo "<configuration><property><name>fs.default.name</name><value>hdfs://0.0.0.0
 echo "<configuration><property><name>mapreduce.framework.name</name><value>yarn</value></property><property> <name>mapreduce.application.classpath</name><value>%HADOOP_HOME%/share/hadoop/mapreduce/*,%HADOOP_HOME%/share/hadoop/mapreduce/lib/*,%HADOOP_HOME%/share/hadoop/common/*,%HADOOP_HOME%/share/hadoop/common/lib/*,%HADOOP_HOME%/share/hadoop/yarn/*,%HADOOP_HOME%/share/hadoop/yarn/lib/*,%HADOOP_HOME%/share/hadoop/hdfs/*,%HADOOP_HOME%/share/hadoop/hdfs/lib/*</value></property></configuration>" >> /opt/hadoop-3.3.6/etc/hadoop/mapred-site.xml
 echo "<configuration><property><name>dfs.replication</name><value>1</value></property><property><name>dfs.namenode.name.dir</name><value>file:////opt/hadoop-3.3.6/data/dfs/namespace_logs</value></property><property><name>dfs.datanode.data.dir</name><value>file:////opt/hadoop-3.3.6/data/dfs/data</value></property></configuration>" >> /opt/hadoop-3.3.6/etc/hadoop/hdfs-site.xml
 
-
+# Install mpich - To run modin through unidist using MPI as the backend
+sudo apt install mpich              # Necessary to install mpi4py
+sudo apt-get install python3.9-dev    # Necessary to install mpi4py (this allows the #include <Python.h> C header)
 
 # Install python version 3.9
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install python3.8
-# Instalt venv for python3.9
+# Install venv for python3.9
 sudo apt-get install python3.8-venv
 
 # Create a virtual environment with the necessary requirements

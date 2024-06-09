@@ -45,16 +45,13 @@ class Benchmark:
                 cudf.pandas.install()
                 import pandas as pd
                 self.pd = pd
-        elif engine == 'joblib':
+        elif engine in ('joblib', 'pandas'):
             import pandas as pd
             self.pd = pd
-        else:
-            import pandas as pd
-            self.pd = pd
+        else: raise ValueError(f'Engine <{engine}> Invalid! Please insert a valid engine')
 
-        # Read parquet with index as keyward (if it fails, try without it)
-        try: self.df = self.pd.read_parquet(self.file_dir, index='index')
-        except: self.df = self.pd.read_parquet(self.file_dir)
+        # Read initial parquet
+        self.df = self.read_file_parquet()
     
         # Create the other columns to do the joins
         self.other = self.groupby_statistics()
@@ -81,8 +78,7 @@ class Benchmark:
     @time_decorator
     def read_file_parquet(self):
         # Read parquet with index as keyward (if it fails, try without it)
-        try: result = self.pd.read_parquet(self.file_dir, index='index')
-        except: result = self.pd.read_parquet(self.file_dir)
+        result = self.pd.read_parquet(self.file_dir)
         return result
 
     @time_decorator
@@ -223,7 +219,7 @@ class Benchmark:
         del(self.other)
 
     def run_benchmark(self):
-        self.read_file_parquet()
+        # self.read_file_parquet()  # Already was executed in the __init__ method
         self.count()
         self.count_index_length()
         self.mean()

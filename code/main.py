@@ -12,7 +12,7 @@ def main():
 
     # Run benchmarks for all engines
     engine_configs = [
-        # {'engine': 'pandas', 'df_type': 'pandas'},    # Not possible to read parquet with normal pandas
+        {'engine': 'pandas', 'df_type': 'pandas'},    # Not possible to read parquet with normal pandas
         {'engine': 'modin', 'df_type': 'dask'},
         {'engine': 'modin', 'df_type': 'ray'},
         {'engine': 'modin', 'df_type': 'unidist'},

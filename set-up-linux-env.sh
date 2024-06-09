@@ -75,3 +75,6 @@ sudo .venv/bin/python3 -m pip install cudf-cu12==24.4.* dask-cudf-cu12==24.4.* -
 
 # Some other environment variables necessary
 echo "export PYARROW_IGNORE_TIMEZONE=\"1\"" >> ~/.bashrc
+
+# Install Nvidia CUDA toolkit (to run cudf)
+sudo apt install nvidia-cuda-toolkit

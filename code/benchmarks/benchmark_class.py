@@ -2,7 +2,6 @@ import os
 import time
 import logging
 import numpy as np
-import pandas as pd
 import modin.pandas as mpd
 import dask.dataframe as dd
 
@@ -25,8 +24,6 @@ class Benchmark:
         self.file_dir = file_dir
         self.exec_times = {}
         self.client = None
-        # Default "engine"
-        self.pd = pd
         if engine == 'modin':
             os.environ["MODIN_ENGINE"] = df_type if df_type != 'pandas' else 'dask'  # Modin will use Dask if nothing else provided
             if os.environ['MODIN_ENGINE'] == 'dask': 
@@ -39,13 +36,19 @@ class Benchmark:
             self.client = Client(self.cluster)
             self.pd = dd
         elif engine == 'cudf': # we can use cudf or dd 
-            import cudf # RapidsAI
-            import dask_cudf
             if df_type == 'dask':
+                import dask_cudf
                 self.pd = dask_cudf
             else:
-                self.pd = cudf
+                import cudf.pandas # RapidsAI
+                cudf.pandas.install()
+                import pandas as pd
+                self.pd = pd
         elif engine == 'joblib':
+            import pandas as pd
+            self.pd = pd
+        else:
+            import pandas as pd
             self.pd = pd
 
         # Read parquet with index as keyward (if it fails, try without it)

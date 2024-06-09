@@ -13,7 +13,7 @@ def main():
     # Run benchmarks for all engines
     engine_configs = [
         # {'engine': 'pandas', 'df_type': 'pandas'},    # Not possible to read parquet with normal pandas
-        # {'engine': 'modin', 'df_type': 'dask'},
+        {'engine': 'modin', 'df_type': 'dask'},
         {'engine': 'modin', 'df_type': 'ray'},
         {'engine': 'modin', 'df_type': 'unidist'},
         {'engine': 'dask', 'df_type': 'pandas'},
@@ -27,8 +27,7 @@ def main():
             file_dir=f'{output_folder}',
             **engine_config 
         ))
-        try: benchmarks[-1].run_benchmark()
-        except: pass
+        benchmarks[-1].run_benchmark()
         
         
     # Save results to json file

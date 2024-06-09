@@ -37,8 +37,9 @@ class Benchmark:
             self.pd = dd
         elif engine == 'cudf': # we can use cudf or dd 
             if df_type == 'dask':
-                import dask_cudf
-                self.pd = dask_cudf
+                import dask
+                dask.config.set({"dataframe.backend": "cudf"})
+                self.pd = dd
             else:
                 import cudf.pandas # RapidsAI
                 cudf.pandas.install()
@@ -57,13 +58,19 @@ class Benchmark:
     
         # Create the other columns to do the joins
         self.other = self.groupby_statistics()
-        self.other.columns = pd.Index([e[0] + '_' + e[1] for e in self.other.columns.tolist()])
+        self.other.columns = [e[0] + '_' + e[1] for e in self.other.columns.tolist()]
 
     def time_decorator(func):
         def wrapper(*args, **kwargs):
             start_time = time.time()
             logging.info(f'Starting {func.__name__}')
-            result = func(*args, **kwargs)
+            try: result = func(*args, **kwargs)
+            except: 
+                logging.info(f'Failed running {func.__name__}')
+                end_time = time.time()
+                execution_time = end_time - start_time
+                args[0].exec_times[func.__name__] = f'Failed after {execution_time} seconds'
+                return
             logging.info(f'Finished {func.__name__}')
             end_time = time.time()
             execution_time = end_time - start_time

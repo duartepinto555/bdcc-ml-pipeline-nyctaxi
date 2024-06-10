@@ -24,7 +24,12 @@ def main():
             }
         },
         # {'engine': 'joblib', 'df_type': 'pandas'},
-        {'engine': 'cudf', 'df_type': 'dask'},
+        {'engine': 'cudf', 'df_type': 'dask', 'dask_init_args': {
+                'n_workers': 2,
+                'threads_per_worker': 2,
+                'memory_limit': '10GiB'
+            }
+        },
         # {'engine': 'cudf', 'df_type': 'pandas'},
     ]
     benchmarks = []

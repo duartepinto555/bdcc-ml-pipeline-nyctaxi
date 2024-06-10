@@ -47,6 +47,8 @@ class Benchmark:
             if df_type == 'dask':
                 import dask
                 dask.config.set({"dataframe.backend": "cudf"})
+                self.cluster = LocalCluster(**dask_init_args)
+                self.client = Client(self.cluster)
                 self.pd = dd
             else:
                 import cudf.pandas # RapidsAI
@@ -207,20 +209,20 @@ class Benchmark:
             'tip_amt': ['mean', 'std']
           }
         )
-        if self.engine == 'dask':
+        if self.engine == 'dask' or self.df_type == 'dask':
             return result.compute()
         else:
             return result
     
     @time_decorator
     def join_count(self):
-        if self.engine == 'dask':
-            return len(self.pd.merge(self.df, self.other, left_index=True, right_index=True))
-    
+        return len(self.pd.merge(self.df, self.other, left_index=True, right_index=True))
+
     @time_decorator
     def join_data(self):
-        if self.engine == 'dask':
-            return self.pd.merge(self.df, self.other, left_index=True, right_index=True).compute()
+        result = self.pd.merge(self.df, self.other, left_index=True, right_index=True)
+        if self.engine == 'dask' or self.df_type == 'dask': return result.compute()
+        return result
 
     def clear_cache(self):
         if self.client:
@@ -236,12 +238,12 @@ class Benchmark:
         self.mean()
         self.standard_deviation()
         self.mean_of_sum()
-        # self.sum_columns()
+        # self.sum_columns()            # Not much sense in calculating a pandas dataframe from a df we don't have memory to store
         self.mean_of_product()
-        # self.product_columns()
+        # self.product_columns()        # Not much sense in calculating a pandas dataframe from a df we don't have memory to store
         self.value_counts()
         self.mean_of_complicated_arithmetic_operation()
-        # self.complicated_arithmetic_operation()
+        # self.complicated_arithmetic_operation()   # Not much sense in calculating a pandas dataframe from a df we don't have memory to store
         # self.groupby_statistics()  # Already was executed in the __init__ method
         self.join_count()
         self.join_data()

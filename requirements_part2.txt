@@ -1,6 +1,6 @@
 tqdm
 requests
-Dask[complete]
+Dask[complete]==2024.5.2
 pandas
 PyArrow
 NumPy     # Due to Koalas being a bit old, it requires this version
@@ -14,5 +14,5 @@ ray         #==2.24.0
 unidist     #==0.7.0
 mpi4py      #==3.1.6
 ipywidgets
-# cudf-cu12==24.4.*       # May require "--extra-index-url=https://pypi.nvidia.com"
-# dask-cudf-cu12==24.4.*  # May require "--extra-index-url=https://pypi.nvidia.com"
+# cudf-cu12==24.6.*       # May require "--extra-index-url=https://pypi.nvidia.com"
+# dask-cudf-cu12==24.6.*  # May require "--extra-index-url=https://pypi.nvidia.com"

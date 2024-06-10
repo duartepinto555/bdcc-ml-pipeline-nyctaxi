@@ -1,0 +1,38 @@
+[
+    {
+        "engine": "dask",
+        "df_type": "dask",
+        "results": {
+            "read_file_parquet": 0.012546062469482422,
+            "groupby_statistics": 9.5232675075531,
+            "count": "Failed after 42.34876871109009 seconds",
+            "count_index_length": 6.512998342514038,
+            "mean": 3.5936179161071777,
+            "standard_deviation": 4.5405497550964355,
+            "mean_of_sum": 4.974324703216553,
+            "mean_of_product": 4.911330223083496,
+            "value_counts": 5.953658819198608,
+            "mean_of_complicated_arithmetic_operation": 15.998146772384644,
+            "join_count": 14.064181804656982,
+            "join_data": 11.264351606369019
+        }
+    },
+    {
+        "engine": "cudf",
+        "df_type": "dask",
+        "results": {
+            "read_file_parquet": 1.0671851634979248,
+            "groupby_statistics": 17.779048919677734,
+            "count": "Failed after 133.48366975784302 seconds",
+            "count_index_length": 14.929380893707275,
+            "mean": 11.540335893630981,
+            "standard_deviation": 11.900041580200195,
+            "mean_of_sum": 12.703116655349731,
+            "mean_of_product": 12.715716361999512,
+            "value_counts": 11.620022058486938,
+            "mean_of_complicated_arithmetic_operation": 15.25804615020752,
+            "join_count": 10.13889217376709,
+            "join_data": 14.683334112167358
+        }
+    }
+]

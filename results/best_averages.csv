@@ -1,0 +1,13 @@
+Metric,Engine,DF_Type,Average Value
+read_file_parquet,dask,dask,0.013416870780613111
+groupby_statistics,cudf,dask,2.7219560146331787
+count,pandas,pandas,0.00015333424443783969
+count_index_length,pandas,pandas,6.36992247208305e-05
+mean,cudf,pandas,0.040703866792761764
+standard_deviation,cudf,pandas,0.015571055204971977
+mean_of_sum,cudf,pandas,0.10075752631477687
+mean_of_product,cudf,pandas,0.10024629468503206
+value_counts,cudf,pandas,0.20727435402248218
+mean_of_complicated_arithmetic_operation,cudf,pandas,1.2022703937862231
+join_count,cudf,pandas,0.07664660785509192
+join_data,cudf,pandas,0.07327853078427522

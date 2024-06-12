@@ -49,10 +49,14 @@ def calc_averages(file_name:str):
         averages = []
         for key, metrics in sums.items():
             for metric, sum_value in metrics.items():
-                averages.append([key[0], key[1], metric, sum_value / counts[key][metric]])
+                count = counts[key][metric]
+                if count > 0:  # Check if count is greater than zero
+                    averages.append([key[0], key[1], metric, sum_value / count])
+                else:
+                    print(f"Warning: No numeric values for {metric} in {key}, skipping average calculation.")
         return averages
 
-    process_files(file_name, process_entry, finalize_results, ['Engine', 'DF_Type', 'Metric', 'Average Value'], 'averages.csv')
+    process_files(file_name, process_entry, finalize_results, ['Engine', 'DF_Type', 'Metric', 'Average Value'], f'averages_{file_name}.csv')
 
 def calc_best_averages(file_name:str):
     def process_entry(entry, sums, counts, file_name):
@@ -84,10 +88,10 @@ def calc_best_averages(file_name:str):
             best_averages.append([metric, best_average['engine'], best_average['df_type'], best_average['value']])
         return best_averages
 
-    process_files(file_name, process_entry, finalize_results, ['Metric', 'Engine', 'DF_Type', 'Average Value'], 'best_averages.csv')
+    process_files(file_name, process_entry, finalize_results, ['Metric', 'Engine', 'DF_Type', 'Average Value'], f'best_averages_{file_name}.csv')
 
 if __name__ == '__main__':
     calc_averages('all_engines_2011.01_2011.06')
     calc_best_averages('all_engines_2011.01_2011.06')
-    #calc_averages('big_data_2011.01_2012.12')
-    #calc_best_averages('big_data_2011.01_2012.12')
+    calc_averages('big_data_2011.01_2012.12')
+    calc_best_averages('big_data_2011.01_2012.12')

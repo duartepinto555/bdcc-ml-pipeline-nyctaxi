@@ -21,7 +21,7 @@ class Benchmark:
             engine: Literal['pandas', 'modin', 'dask', 'cudf', 'joblib']='pandas',
             df_type: Literal['pandas', 'dask', 'ray', 'unidist']='pandas',
             dask_init_args: dict={'n_workers': 1, 'threads_per_worker': 2, 'memory_limit': '20GiB'},
-            ray_init_args: dict={'num_cpus': 4, 'num_gpus': 0},
+            ray_init_args: dict={'num_cpus': 4, 'num_gpus': 0, 'include_dashboard': True},
         ):
         self.engine = engine # engine can be 'pandas', 'modin', 'dask', 'cudf', or 'joblib'
         self.df_type = df_type # df_type can be 'pandas', 'dask'
@@ -36,13 +36,15 @@ class Benchmark:
                 logging.info(f'({self.engine}, {self.df_type}): Starting dask client. Dashboard URL -> {self.client.dashboard_link}')
             elif os.environ['MODIN_ENGINE'] == 'ray':
                 import ray
-                ray.init(**ray_init_args)
+                context = ray.init(**ray_init_args)
+                logging.info(f'({self.engine}, {self.df_type}): Starting ray client. Dashboard URL -> {context.dashboard_url}')
             elif os.environ['MODIN_ENGINE'] == 'unidist': os.environ["UNIDIST_BACKEND"] = "mpi"  # Unidist will use MPI backend
             self.pd = mpd
         elif engine == 'dask':
             self.cluster = LocalCluster(**dask_init_args)
             self.client = Client(self.cluster)
             self.pd = dd
+            logging.info(f'({self.engine}, {self.df_type}): Starting dask client. Dashboard URL -> {self.client.dashboard_link}')
         elif engine == 'cudf': # we can use cudf or dd 
             if df_type == 'dask':
                 import dask

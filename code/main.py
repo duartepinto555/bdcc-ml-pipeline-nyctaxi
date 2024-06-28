@@ -17,7 +17,12 @@ def main():
     # Run benchmarks for all engines
     engine_configs = [
         {'engine': 'pandas', 'df_type': 'pandas'},
-        # {'engine': 'modin', 'df_type': 'dask'},
+        # {'engine': 'modin', 'df_type': 'dask', 'dask_init_args': {
+        #         'n_workers': 1,
+        #         'threads_per_worker': 3,
+        #         'memory_limit': '21GiB'
+        #     }
+        # },
         # {'engine': 'modin', 'df_type': 'ray'},
         # {'engine': 'modin', 'df_type': 'unidist'},
         {
